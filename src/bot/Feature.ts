@@ -1,4 +1,5 @@
-import Setting from "./settings/Setting";
+import Setting from "@/bot/settings/Setting";
+import BooleanSetting from "@/bot/settings/BooleanSetting";
 
 export default abstract class Feature
 {
@@ -10,6 +11,7 @@ export default abstract class Feature
   {
     this.name = name;
     this.description = description;
+    this.addSetting( new BooleanSetting( "Enabled", null, false ) );
   }
   
   toJSON (): any
@@ -22,10 +24,16 @@ export default abstract class Feature
   }
   
   addSetting ( setting: Setting ): void
-  { this.settings.push( setting ); }
+  {
+    setting.setParent( this );
+    this.settings.push( setting );
+  }
   
   addSettings ( settings: Setting[] ): void
-  { this.settings = settings; }
+  {
+    settings.forEach( setting => setting.setParent( this ) );
+    this.settings = settings;
+  }
   
   getSetting ( name: string ): Setting | undefined
   { return this.settings.find( setting => setting.name === name ); }
